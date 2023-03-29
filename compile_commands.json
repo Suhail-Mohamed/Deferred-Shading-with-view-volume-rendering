@@ -1,0 +1,47 @@
+[
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/main.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/main.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/main.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/camera.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/camera.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/camera.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/cylinder.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/cylinder.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/cylinder.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/graphicsObject.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/graphicsObject.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/graphicsObject.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/Light.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Light.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Light.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/Shader.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Shader.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Shader.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/Solution.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Solution.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/Solution.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/sphere.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/sphere.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/sphere.cpp"
+},
+{
+  "directory": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build",
+  "command": "/usr/bin/c++  -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src -I/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/include -I/include -g -o CMakeFiles/final.dir/src/surface.cpp.o -c /home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/surface.cpp",
+  "file": "/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/src/surface.cpp"
+}
+]
