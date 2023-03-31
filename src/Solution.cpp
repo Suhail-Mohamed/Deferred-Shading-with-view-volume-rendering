@@ -6,13 +6,10 @@
 #include "time.h"
 
 
+/************************************************************/
 
 #define NORMAL_SPEED 0.5
 #define MAX_SPEED 2.0
-
-
-/************************************************************/
-
 #define NO_LIGHT 0
 #define POINT_LIGHT 1
 #define SPOT_LIGHT  2
@@ -21,8 +18,6 @@
 /************************************************************/
 
 Solution *Solution::sol = NULL;
-
-/****************************************************************************/
 
 Solution::Solution() : numFrames(0)
 {
@@ -48,8 +43,6 @@ int Solution::initOpenGL()
 	glutCreateWindow("Deffered Shading");
 	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
-
 	glutDisplayFunc(Solution::renderCB);
 	glutReshapeFunc(Solution::winResizeCB);
 	glutKeyboardFunc(Solution::keyboardCB);
@@ -152,26 +145,28 @@ int Solution::initSolution()
 	shader_phongtex.copy_integer_to_shader("colour_tex", 2);
 
 	f_buffer.init_frame_buffer();
-	render_surface.init_surface(shader_phongtex, "vtxPos", "tex_coord");
 	
-	light.pointLight.lightIntensity   = {10.0f, 10.0f, 10.0f};
-	light.pointLight.ambientIntensity = {3.0f, 3.0f, 3.0f};
+	light.pointLight.lightIntensity   = {3.0f, 7.0f, 3.0f};
+	light.pointLight.ambientIntensity = {7.0f, 7.0f, 7.0f};
 	light.pointLight.worldPos         = {140.0f, 0.0f, 150.0f};
 	light.pointLight.specularPower    = 10.0f;
 	
-	/*
-	light.light_view.setInitialPosition(light.pointLight.worldPos);
-	light.light_view.createSphere(5, 5, vtx2, ind2);
-	light.light_view.createVAO(shader_fbuffer, vtx2, ind2);
+	float light_size = light.calculate_bound_sphere();
+	std::cout << "LIGHT SIZE: " << light_size << "\n";
+	
+	light.light_view.sphere_colour = light.light_colour(); 
+	light.light_view.createSphere(20, 20, vtx2, ind2);
+	light.light_view.createVAO_only_vtx(shader_phongtex, vtx2, ind2);
 	light.light_view.setInitialPosition(light.pointLight.worldPos);
 	light.light_view.setScale(10.0f, 10.0f, 10.0f);
-	light.light_view.sphere_colour = {0.5f, 0.5f, 0.5f, 1.0f};
-	*/
-
+	light.loadPointLight(shader_phongtex);
+	
 	sphere.materials.ambientMaterial  = {0.2f, 0.2f, 0.2f};
 	sphere.materials.diffuseMaterial  = {0.8f, 0.8f, 0.8f};
 	sphere.materials.specularMaterial = {1.0f, 1.0f, 1.0f};
-	sphere.sphere_colour              = {1.0f, 0.0f, 0.0f, 1.0f};	
+	sphere.sphere_colour              = {1.0f, 0.2f, 0.2f, 1.0f};	
+	
+	sphere.loadMaterials(shader_phongtex);
 	sphere.createSphere(5, 5, vtx1, ind1);
 	sphere.createVAO(shader_fbuffer, vtx1, ind1);
 	sphere.setInitialPosition(150, 0, 100);
@@ -213,8 +208,8 @@ void Solution::load_point_light_list(Shader shader)
 		std::string light_arr = "g_point_light_list[" + std::to_string(i) + "]";
 		std::string atten_arr = "g_atten_list[" + std::to_string(i) + "]";
 		load_light(light_arr, atten_arr, 
-			   point_light_list[i].pointLight, 
-			   point_light_list[i].point_light_attenuation);
+			       point_light_list[i].pointLight, 
+			       point_light_list[i].atten);
 	}
 }
 
@@ -225,23 +220,31 @@ void Solution::render()
 	Matrix4f projMat = cam.getProjectionMatrix(nullptr);
 	
 	/* geometry pass of deffered shading */
+	glDepthMask(GL_TRUE);
 	glBindFramebuffer(GL_FRAMEBUFFER, f_buffer.fbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glEnable(GL_DEPTH_TEST); 
+	glDisable(GL_BLEND);
+	
 	shader_fbuffer.useProgram(true);
 	shader_fbuffer.copyMatrixToShader(viewMat, "view");
 	shader_fbuffer.copyMatrixToShader(projMat, "projection");
 	
 	sphere.render(shader_fbuffer);
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 
 	/* lighting pass of deffered shading */
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	shader_phongtex.useProgram(true);
-
-	sphere.loadMaterials(shader_phongtex);
-	light.loadPointLight(shader_phongtex);
+	shader_phongtex.copyMatrixToShader(viewMat, "view");
+	shader_phongtex.copyMatrixToShader(projMat, "projection");
 	shader_phongtex.copyFloatVectorToShader((float*)&cam_pos, 1, 3, "gEyeWorldPos");
 	
 	glActiveTexture(GL_TEXTURE0);
@@ -253,10 +256,8 @@ void Solution::render()
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, f_buffer.colour_tex);
 
-	render_surface.draw_surface();
+	light.light_view.render(shader_phongtex);
 	
-	/* loading the depth information attained from the geometry pass to be used
-	   for normal forward rendering if desired */
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, f_buffer.fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, WINDOW_SIZE, WINDOW_SIZE, 0, 0, 

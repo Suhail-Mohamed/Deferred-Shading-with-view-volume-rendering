@@ -379,12 +379,11 @@ This is a helper function since this operation is used quite often
 int Shader::copyMatrixToShader(Matrix4f matrix, const char* name){
 	int location;
 	location = glGetUniformLocation(getProgId(), name);
-	assert(location != -1);
-	if (location == -1) {
-		std::cout << "ERROR FETCHING " << name << " FROM SHADER\n"; 
-		return -1;
-	}
 
+	if (location == -1)
+		std::cout << "ERROR FETCHING " << name << " FROM SHADER\n"; 
+	
+	assert(location != -1);
 	glUniformMatrix4fv(location, 1, true, matrix.data());
 	return(0);
 }

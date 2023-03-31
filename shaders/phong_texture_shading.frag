@@ -1,6 +1,4 @@
 #version 330 core
-
-in  vec2 frag_tex_coord;
 out vec4 out_colour;
 
 /*************************************************************************************/
@@ -24,8 +22,10 @@ struct fragData {
 	vec4 colour;
 };
 
+
+/* equation for atten is 1 / (c + b * d + a * d^2)*/
 struct atten_t {
-	float a, b, c;
+	float c, b, a;
 };  
  
 /*************************************************************************************/
@@ -88,7 +88,7 @@ vec3 calcPointLight(material m,  pointLight l, fragData frag)
 	}
 	
 	float dist         = distance(l.worldPos, frag.worldPos);
-	float atten_factor = g_atten.a * 10.0f;
+	float atten_factor = 1.0f / (g_atten.c + g_atten.b * dist + g_atten.a * (dist * dist));
 
 	vec3 colour = (atten_factor * (amb_light + diff_light + spec_light)) * frag.colour.rgb;			
 	colour.r    = min(colour.r, 1.0f);
@@ -100,10 +100,19 @@ vec3 calcPointLight(material m,  pointLight l, fragData frag)
 
 /*************************************************************************************/
 
+vec2 calc_tex_coord() 
+{
+	float wind_size = 1000.0f;
+	return gl_FragCoord.xy / vec2(wind_size, wind_size);
+}
+
+/*************************************************************************************/
+
 void main() 
 {
 	fragData frag;
 	vec3     frag_colour;
+	vec2	 frag_tex_coord = calc_tex_coord();
 
 	frag.worldPos = texture(pos_tex   , frag_tex_coord).xyz;
 	frag.normal   = texture(normal_tex, frag_tex_coord).xyz;
@@ -112,3 +121,5 @@ void main()
 	frag_colour = calcPointLight(gMaterial, gPointLight, frag);
 	out_colour  = vec4(frag_colour, 1.0f); 
 }
+
+

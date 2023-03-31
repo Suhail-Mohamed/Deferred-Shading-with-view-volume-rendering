@@ -90,12 +90,12 @@ struct framebuffer_t {
 struct surface_t {
 	unsigned int vao, vbo;
 	
-	const float surface_vertices[20] = {
-		  /* positions */  /* texture Coord */
-		-1.0f,  1.0f, 0.0f,    0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f,    0.0f, 0.0f,
-         1.0f,  1.0f, 0.0f,    1.0f, 1.0f,
-         1.0f, -1.0f, 0.0f,    1.0f, 0.0f,
+	const float surface_vertices[12] = {
+		   /* positions */  
+		-1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,
+	 	 1.0f, -1.0f, 0.0f,
 	};
 	
 	void delete_surface() {
@@ -104,15 +104,11 @@ struct surface_t {
 		vao = vbo = 0;
 	}
 
-	void init_surface(Shader shader, std::string pos_name, std::string tex_name) {
+	void init_surface(Shader shader, std::string pos_name) {
 		int pos_loc = glGetAttribLocation(shader.getProgId(), pos_name.c_str());
-		int tex_loc = glGetAttribLocation(shader.getProgId(), tex_name.c_str());
 		
 		if (pos_loc == -1)
 			std::cout << "ERROR FETCHING POSITION: '" << pos_name << "' ATTRIBUTE FROM SHADER\n";
-
-		if (tex_loc == -1)
-			std::cout << "ERROR FETCHING TEXTURE: '" << tex_name << "' ATTRIBUTE FROM SHADER\n";
 
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
@@ -122,11 +118,8 @@ struct surface_t {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(surface_vertices), &surface_vertices, GL_STATIC_DRAW);
 		
 		glEnableVertexAttribArray(pos_loc);
-		glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) 0);
+		glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-		glEnableVertexAttribArray(tex_loc);
-		glVertexAttribPointer(tex_loc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
-			
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
