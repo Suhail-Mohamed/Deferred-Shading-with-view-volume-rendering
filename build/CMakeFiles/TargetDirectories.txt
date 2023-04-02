@@ -1,3 +1,0 @@
-/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build/CMakeFiles/final.dir
-/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build/CMakeFiles/edit_cache.dir
-/home/SuMo/Documents/SchoolStuff/COMP3009/Project/project_code/build/CMakeFiles/rebuild_cache.dir

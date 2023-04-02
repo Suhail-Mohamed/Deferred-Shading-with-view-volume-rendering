@@ -101,12 +101,9 @@ int Sphere::createSphere(int numLong, int numLat, Vertices &vtx, Indices &ind)
 		}
 	}
 
-	// fill the index buffer
 	k = 0;
 	for (i = 0; i < numRows; i++) {
 		for (j = 0; j < numCols; j++) {
-			// fill indices for the quad
-			// change by making a quad function
 			ind.push_back(i * (numCols + 1) + j);
 			ind.push_back(i * (numCols + 1) + j + 1);
 			ind.push_back((i + 1) * (numCols + 1) + j + 1);
@@ -148,9 +145,7 @@ int Sphere::render(Shader shader)
 	shader.copyMatrixToShader(modelMat, "model");
 	
 	glBindVertexArray(vao);
-
 	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
-	
 	glBindVertexArray(0);
 	return 0;
 }
@@ -159,7 +154,6 @@ int Sphere::render(Shader shader)
 
 int Sphere::createGeom(int numLongs, int numLat)
 {
-//	int numLong, int numLat, float radius, struct sphereVertex **vtx, int *numVtx1, GLuint **ind, int *numInd1
 	return 0;
 }
 

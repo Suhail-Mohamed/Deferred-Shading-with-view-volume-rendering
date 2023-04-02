@@ -30,8 +30,8 @@ typedef struct attenuation {
 
 struct Light {
 	Light() {
-		atten.a = 0.05f;
-		atten.b = 0.01f;
+		atten.a = 0.03f;
+		atten.b = 0.0f;
 		atten.c = 0.01f;
 	}
 
@@ -68,7 +68,7 @@ struct Light {
 	}
 	
 	Vector4f light_colour() {
-		return Vector4f((1.0f / MAX_INTENSITY) * pointLight.lightIntensity, 1.0f);
+		return Vector4f(1.0f / MAX_INTENSITY * pointLight.lightIntensity, 1.0f);
 	}
 
 	PointLight  pointLight;

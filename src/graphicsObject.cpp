@@ -63,35 +63,6 @@ GraphicsObject::~GraphicsObject()
 
 
 /***************************************************************************/
-
-int GraphicsObject::createVAO_only_vtx(Shader shader, Vertices vtx, Indices ind) {
-	GLint location;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vtxVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, vtxVBO);
-	glBufferData(GL_ARRAY_BUFFER, vtx.size() * sizeof(Vertex), vtx.data(), GL_STATIC_DRAW);
-
-	location = glGetAttribLocation(shader.getProgId(), "vtxPos");
-	if (location == -1) {
-		std::cout << "ERROR LOADING IN POSITION DATA\n";
-		return -1;
-	}
-
-	glEnableVertexAttribArray(location);	
-	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
-
-	glGenBuffers(1, &indVBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ind.size() * sizeof(GLuint), ind.data(), GL_STATIC_DRAW);
-	numIndices = ind.size();
-
-	glBindVertexArray(0);
-	return 0;
-}
-
 int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 {
 	int rc = 0;

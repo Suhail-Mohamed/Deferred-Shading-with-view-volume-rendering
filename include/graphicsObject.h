@@ -60,7 +60,6 @@ class GraphicsObject
 public:
 	GraphicsObject();
 	virtual ~GraphicsObject();
-	int createVAO_only_vtx(Shader shader, Vertices vtx, Indices ind);
 	int createVAO(Shader shader, Vertices vtx, Indices ind);
 	virtual int render(Shader shader);
 	MATERIALS materials;

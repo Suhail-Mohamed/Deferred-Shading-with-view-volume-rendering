@@ -1,5 +1,6 @@
 #pragma once
 
+#include "nuss_vector.h"
 #ifndef SOLUTION_HEADER
 #define SOLUTION_HEADER
 
@@ -20,18 +21,20 @@
 /*****************************************************************************************/
 
 #define UPDATE_RENDERRED_OBJECTS 1000
-#define FRAME_TIME 30
-#define NUM_LIGHTS 30
-#define WINDOW_SIZE 1000
+#define FRAME_TIME				 30
+#define NUM_LIGHTS				 150
+#define NUM_SPHERES				 10
+#define WINDOW_SIZE				 1000
+#define MOVEMENT_SPEED			 3
 
 /************************************************************************************************/
 
 struct framebuffer_t {
 	unsigned int fbo,
-		     pos_tex, 
-		     normal_tex, 
-		     colour_tex, 
-		     rbo;
+				 pos_tex, 
+				 normal_tex, 
+				 colour_tex, 
+				 rbo;
 
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	
@@ -87,52 +90,6 @@ struct framebuffer_t {
 
 /************************************************************************************************/
 
-struct surface_t {
-	unsigned int vao, vbo;
-	
-	const float surface_vertices[12] = {
-		   /* positions */  
-		-1.0f,  1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f,
-	 	 1.0f, -1.0f, 0.0f,
-	};
-	
-	void delete_surface() {
-		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &vbo);
-		vao = vbo = 0;
-	}
-
-	void init_surface(Shader shader, std::string pos_name) {
-		int pos_loc = glGetAttribLocation(shader.getProgId(), pos_name.c_str());
-		
-		if (pos_loc == -1)
-			std::cout << "ERROR FETCHING POSITION: '" << pos_name << "' ATTRIBUTE FROM SHADER\n";
-
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-		
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(surface_vertices), &surface_vertices, GL_STATIC_DRAW);
-		
-		glEnableVertexAttribArray(pos_loc);
-		glVertexAttribPointer(pos_loc, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-
-	void draw_surface() {
-		glBindVertexArray(vao);	
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
-	}
-};
-
-/************************************************************************************************/
-
 class Solution
 {
 public:
@@ -149,32 +106,43 @@ public:
 
 	int initSolution();
 
+	float random_number (int lower_bnd, int upper_bnd) {
+		return ((upper_bnd - lower_bnd) * ((float)rand() / RAND_MAX)) + lower_bnd;
+	};
+	
+	Vector3f random_vec (int lower_bnd, int upper_bnd) {
+		return Vector3f {random_number(lower_bnd, upper_bnd),
+		                 random_number(lower_bnd, upper_bnd),		
+						 random_number(lower_bnd, upper_bnd)};
+	}
+
+
 private:
 	Shader shader_fbuffer, 
 		   shader_phongtex,
 		   shader_basic;
 	Sphere sphere;
+	Sphere sphere_list[NUM_SPHERES];
 	Camera cam;
 	
-	int numFrames;
-	int factor;	
-
+	int  numFrames;
+	int  factor;	
+	bool render_volumes = false;
+	
 	static Solution *sol;
 	
-	void render();
-	void keyboard(unsigned char key, int x, int y);
+	void render(); void keyboard(unsigned char key, int x, int y);
 	void specialKeyboard(int key, int x, int y);
 	void winResize(int width, int height);
 	int  timer(int operation);
 	
 	int  updateObjects(int numFrames);
-	void load_point_light_list(Shader shader);
 	int  printOpenGLError(int errorCode);
 
 	Light	      light;
-	Light	      point_light_list[NUM_LIGHTS];
+	Light	      light_list[NUM_LIGHTS];
+	Sphere		  view_light[NUM_LIGHTS];
 	framebuffer_t f_buffer;
-	surface_t     render_surface;
 
 	char* fbuffer_vtx_shader  = const_cast<char*>("../shaders/frame_buffer.vert");
 	char* fbuffer_frg_shader  = const_cast<char*>("../shaders/frame_buffer.frag");
