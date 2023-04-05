@@ -102,7 +102,7 @@ vec3 calcPointLight(material m,  pointLight l, fragData frag)
 
 vec2 calc_tex_coord() 
 {
-	float wind_size = 1000.0f;
+	float wind_size = 1024.0f;
 	return gl_FragCoord.xy / vec2(wind_size, wind_size);
 }
 

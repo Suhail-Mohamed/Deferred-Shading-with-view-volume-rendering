@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include "nuss_matrix.h"
 #include "nuss_vector.h"
 #include "time.h"
 
@@ -138,6 +139,11 @@ int Solution::initSolution()
 		return -1;
 	}
 	
+	if (shader_null.createShaderProgram(null_vtx_shader, null_frg_shader) != 0) {
+		std::cout << "Error generating null shader (see solution)\n";
+		return -1;
+	} 
+
 	shader_phongtex.useProgram(true);
 	shader_phongtex.copy_integer_to_shader("pos_tex"   , 0);
 	shader_phongtex.copy_integer_to_shader("normal_tex", 1);
@@ -151,7 +157,7 @@ int Solution::initSolution()
 		light_position.x = light_position.x + 40.0f;
 		light_position.z = light_position.z - row_mod * 40.0f;
 	
-		light_list[i].pointLight.lightIntensity   = {3.0f, 3.0f, 3.0f};
+		light_list[i].pointLight.lightIntensity   = {10.0f, 10.0f, 10.0f};
 		light_list[i].pointLight.ambientIntensity = {1.0f, 1.0f, 1.0f};
 		light_list[i].pointLight.worldPos         = light_position;
 		light_list[i].pointLight.specularPower    = 10.0f;
@@ -159,6 +165,7 @@ int Solution::initSolution()
 		float light_size = light_list[i].calculate_bound_sphere();
 		light_list[i].light_view.createSphere(20, 20, vtx2, ind2);
 		light_list[i].light_view.createVAO(shader_phongtex, vtx2, ind2);
+		light_list[i].light_view.createVAO(shader_null, vtx2, ind2);
 		light_list[i].light_view.setInitialPosition(light_list[i].pointLight.worldPos);
 		light_list[i].light_view.setScale(light_size, light_size, light_size);
 		light_list[i].loadPointLight(shader_phongtex);
@@ -203,19 +210,54 @@ void Solution::setSolution(Solution * _sol)
 
 /************************************************************/
 
+void Solution::stencil_lighting_pass(size_t idx) {
+	shader_null.useProgram(true);
+		
+	/* loading light view volume into stencil buffer,
+	   we only render the areas where our stencil isn't 
+	   0 */
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);	
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glStencilFunc(GL_ALWAYS, 0, 0);
+	glStencilOpSeparate(GL_BACK , GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	light_list[idx].light_view.render(shader_null);
+
+	/* lighting pass of deffered shading */
+	shader_phongtex.useProgram(true);
+	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	light_list[idx].loadPointLight(shader_phongtex);
+	light_list[idx].light_view.render(shader_phongtex);
+
+	glDisable(GL_BLEND);
+}
+
 void Solution::render()
 {
 	Vector3f cam_pos = cam.getPosition(); 
 	Matrix4f viewMat = cam.getViewMatrix(nullptr);	
 	Matrix4f projMat = cam.getProjectionMatrix(nullptr);
 	
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* clearing default frame buffer */
+	
 	/* geometry pass of deffered shading */
 	glDepthMask(GL_TRUE);
-	glBindFramebuffer(GL_FRAMEBUFFER, f_buffer.fbo);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST); 
-	glDisable(GL_BLEND);
 	
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, f_buffer.fbo);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	glEnable(GL_DEPTH_TEST); 
 	shader_fbuffer.useProgram(true);
 	shader_fbuffer.copyMatrixToShader(viewMat, "view");
 	shader_fbuffer.copyMatrixToShader(projMat, "projection");
@@ -224,16 +266,14 @@ void Solution::render()
 		sphere_list[i].render(shader_fbuffer);
 	
 	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
+    
+	/* stencil + lighting pass of view volume lighting */
+	glEnable(GL_STENCIL_TEST);
 
-	/* lighting pass of deffered shading */
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
+	shader_null.useProgram(true);
+	shader_null.copyMatrixToShader(viewMat, "view");	
+	shader_null.copyMatrixToShader(projMat, "projection");
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	shader_phongtex.useProgram(true);
 	shader_phongtex.copyMatrixToShader(viewMat, "view");
 	shader_phongtex.copyMatrixToShader(projMat, "projection");
@@ -247,25 +287,41 @@ void Solution::render()
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, f_buffer.colour_tex);
+	
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	
+	if (show_corners_only)
+		for (size_t i = 0; i < NUM_CORNERS; ++i)
+			stencil_lighting_pass(corners[i]);
+	else 
+		for (size_t i = 0; i < NUM_LIGHTS; ++i)
+			stencil_lighting_pass(i);
 
-	for (size_t i = 0; i < NUM_LIGHTS; ++i) {
-		light_list[i].loadPointLight(shader_phongtex);
-		light_list[i].light_view.render(shader_phongtex);
-	}
-		
+	glDisable(GL_STENCIL_TEST);
+
+	/* transferring depth data to the main render buffer */
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, f_buffer.fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, WINDOW_SIZE, WINDOW_SIZE, 0, 0, 
-					  WINDOW_SIZE, WINDOW_SIZE, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+	glBlitFramebuffer(0, 0, WINDOW_SIZE, WINDOW_SIZE, 
+				      0, 0, WINDOW_SIZE, WINDOW_SIZE, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
+	/* rendering where the lights are located, using normal rendering techniques */
 	glEnable(GL_DEPTH_TEST);	
 	if (render_volumes) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	shader_basic.useProgram(true);
 	shader_basic.copyMatrixToShader(viewMat, "view");
 	shader_basic.copyMatrixToShader(projMat, "projection");
-	for (size_t i = 0; i < NUM_LIGHTS; ++i)
-		view_light[i].render(shader_basic);
+	
+	if (show_corners_only)
+		for (size_t i = 0; i < NUM_CORNERS; ++i)
+			view_light[corners[i]].render(shader_basic);
+	else 
+		for (size_t i = 0; i < NUM_LIGHTS; ++i)
+			view_light[i].render(shader_basic);
+
 	if (render_volumes) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glutSwapBuffers();
 }
@@ -300,51 +356,64 @@ void Solution::keyboard(unsigned char key, int x, int y)
 		case 'd':
 			cam.changePoitionDelta(0.0f, -1.0f * MOVEMENT_SPEED, 0.0f);
 			break;
-		case 'P':
-			std::cout << "Ambient Light on\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_ambient = true;
-			break;
-		case 'p':
-			std::cout << "Ambient Light off\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_ambient = false;
-			break;
-		case 'O':
-			std::cout << "Diffuse Light on\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_diffuse = true;	
-			break;
-		case 'o':
-			std::cout << "Diffuse Light off\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_diffuse = false;	
-			break;
-		case 'I':
-			std::cout << "Specular Light on\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_specular = true;	
-			break;
-		case 'i':
-			std::cout << "Specular Light off\n";
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				light_list[i].view_specular = false;	
-			break;
-		case 'V':
-			std::cout << "View light volumes\n";
-			render_volumes = true;
-			for (size_t i = 0; i < NUM_LIGHTS; ++i) {
-				float light_size = light_list[i].calculate_bound_sphere();
-				view_light[i].setScale(light_size, light_size, light_size);
+		case 'p': {
+			if (!light_list[0].view_ambient)  {
+                std::cout << "Ambient Light on\n";
+                for (size_t i = 0; i < NUM_LIGHTS; ++i)
+                    light_list[i].view_ambient = true;
+            } else {
+                std::cout << "Ambient Light off\n";
+                for (size_t i = 0; i < NUM_LIGHTS; ++i)
+                    light_list[i].view_ambient = false;
+            }
+            break;
+		} case 'o': {
+			if (!light_list[0].view_diffuse) {
+				std::cout << "Diffuse Light on\n";
+				for (size_t i = 0; i < NUM_LIGHTS; ++i)
+					light_list[i].view_diffuse = true;
+			} else {
+				std::cout << "Diffuse Light off\n";
+				for (size_t i = 0; i < NUM_LIGHTS; ++i)
+					light_list[i].view_diffuse = false;
 			}
 			break;
-		case 'v':
-			std::cout << "NOT Viewing light volumes\n";
-			render_volumes = false;
-			for (size_t i = 0; i < NUM_LIGHTS; ++i)
-				view_light[i].setScale(2.0f, 2.0f, 2.0f);
-			break;
-		default:
+		} case 'i': {
+			if (!light_list[0].view_specular) {
+				std::cout << "Specular Light on\n";
+                for (size_t i = 0; i < NUM_LIGHTS; ++i)
+                    light_list[i].view_specular = true;
+            } else {
+                std::cout << "Specular Light off\n";
+                for (size_t i = 0; i < NUM_LIGHTS; ++i)
+                    light_list[i].view_specular = false;
+            }
+            break;
+		}  case 'v': {
+			if (!render_volumes) {
+				std::cout << "View light volumes\n";
+                render_volumes = true;
+                for (size_t i = 0; i < NUM_LIGHTS; ++i) {
+					float light_size = light_list[i].calculate_bound_sphere();
+                    view_light[i].setScale(light_size, light_size, light_size);
+                }
+            } else {
+                std::cout << "NOT Viewing light volumes\n";
+                render_volumes = false;
+                for (size_t i = 0; i < NUM_LIGHTS; ++i)
+                    view_light[i].setScale(2.0f, 2.0f, 2.0f);
+            }
+            break;
+		} case 'c': {
+			if (!show_corners_only) {
+				std::cout << "Showing only corners\n";
+                show_corners_only = true;
+            } else {
+				std::cout << "Showing all lights\n";
+                show_corners_only = false;
+            }
+            break;
+        } default:
 			std::cout << "KEY IS NOT A COMMAND\n";
 			break;
 	}

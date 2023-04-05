@@ -438,7 +438,7 @@ int Shader::copyFloatVectorToShader(float *v, int vectorSize, int elementSize, c
 				printf("GL_INVALID_OPERATION is generated if location does not correspond to a valid uniform variable location for the specified program object.");
 				break;
 			default:
-				printf("openGL unknown error \n");
+				printf("openGL unknown error %d \n", rc);
 		}		rc = -1;
 	}
 
@@ -493,8 +493,9 @@ int Shader::copyIntVectorToShader(int *v, int vectorSize, int elementSize, const
 			printf("GL_INVALID_OPERATION is generated if location does not correspond to a valid uniform variable location for the specified program object.");
 			break;
 		default:
-			printf("openGL unknown error \n");
-		}		rc = -1;
+			printf("openGL unknown error %d\n", rc);
+			rc = -1;
+		}	
 	}
 
 	return(0);

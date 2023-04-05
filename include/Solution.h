@@ -24,8 +24,9 @@
 #define FRAME_TIME				 30
 #define NUM_LIGHTS				 150
 #define NUM_SPHERES				 10
-#define WINDOW_SIZE				 1000
+#define WINDOW_SIZE				 1024
 #define MOVEMENT_SPEED			 3
+#define NUM_CORNERS              4
 
 /************************************************************************************************/
 
@@ -77,8 +78,8 @@ struct framebuffer_t {
 		
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WINDOW_SIZE, WINDOW_SIZE);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_SIZE, WINDOW_SIZE);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 		
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "FRAMEBUFFER NOT COMPLETE\n";
@@ -120,17 +121,20 @@ public:
 private:
 	Shader shader_fbuffer, 
 		   shader_phongtex,
-		   shader_basic;
+		   shader_basic,
+		   shader_null;
 	Sphere sphere;
 	Sphere sphere_list[NUM_SPHERES];
 	Camera cam;
 	
 	int  numFrames;
 	int  factor;	
-	bool render_volumes = false;
-	
+	bool render_volumes    = false;
+	bool show_corners_only = false;
+
 	static Solution *sol;
 	
+	void stencil_lighting_pass(size_t idx);
 	void render(); void keyboard(unsigned char key, int x, int y);
 	void specialKeyboard(int key, int x, int y);
 	void winResize(int width, int height);
@@ -139,17 +143,19 @@ private:
 	int  updateObjects(int numFrames);
 	int  printOpenGLError(int errorCode);
 
-	Light	      light;
-	Light	      light_list[NUM_LIGHTS];
-	Sphere		  view_light[NUM_LIGHTS];
+	Light  light_list[NUM_LIGHTS];
+	Sphere view_light[NUM_LIGHTS];
+	int	   corners[NUM_CORNERS] = {0, 9, NUM_LIGHTS - 10, NUM_LIGHTS - 1};
+	
 	framebuffer_t f_buffer;
-
 	char* fbuffer_vtx_shader  = const_cast<char*>("../shaders/frame_buffer.vert");
 	char* fbuffer_frg_shader  = const_cast<char*>("../shaders/frame_buffer.frag");
 	char* phongtex_vtx_shader = const_cast<char*>("../shaders/phong_texture_shading.vert");
 	char* phongtex_frg_shader = const_cast<char*>("../shaders/phong_texture_shading.frag");
 	char* basic_vtx_shader    = const_cast<char*>("../shaders/basic_shader.vert");
 	char* basic_frg_shader    = const_cast<char*>("../shaders/basic_shader.frag");
+	char* null_vtx_shader     = const_cast<char*>("../shaders/null_shader.vert");
+	char* null_frg_shader       = const_cast<char*>("../shaders/null_shader.frag");
 };
 
 #endif
