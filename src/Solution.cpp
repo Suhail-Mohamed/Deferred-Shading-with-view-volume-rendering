@@ -148,7 +148,8 @@ int Solution::initSolution()
 	shader_phongtex.copy_integer_to_shader("pos_tex"   , 0);
 	shader_phongtex.copy_integer_to_shader("normal_tex", 1);
 	shader_phongtex.copy_integer_to_shader("colour_tex", 2);
-
+	shader_phongtex.copy_integer_to_shader("g_wind_size", WINDOW_SIZE);
+	
 	f_buffer.init_frame_buffer();
 	Vector3f light_position = {140.0f, 40.0f, 150.0f};
 	for (size_t i = 0; i < NUM_LIGHTS; ++i) {
@@ -210,12 +211,11 @@ void Solution::setSolution(Solution * _sol)
 
 /************************************************************/
 
-void Solution::stencil_lighting_pass(size_t idx) {
-	shader_null.useProgram(true);
-		
+void Solution::stencil_lighting_pass(size_t idx) {	
 	/* loading light view volume into stencil buffer,
 	   we only render the areas where our stencil isn't 
 	   0 */
+	shader_null.useProgram(true);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);	
 	glClear(GL_STENCIL_BUFFER_BIT);
@@ -278,7 +278,8 @@ void Solution::render()
 	shader_phongtex.copyMatrixToShader(viewMat, "view");
 	shader_phongtex.copyMatrixToShader(projMat, "projection");
 	shader_phongtex.copyFloatVectorToShader((float*)&cam_pos, 1, 3, "gEyeWorldPos");
-	
+ 	shader_phongtex.copy_integer_to_shader("g_show_debug",show_debug);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, f_buffer.pos_tex);
 	
@@ -413,7 +414,11 @@ void Solution::keyboard(unsigned char key, int x, int y)
                 show_corners_only = false;
             }
             break;
-        } default:
+        } case 'u':
+			std::cout << "DEBUG Button clicked\n";
+			show_debug = !show_debug;
+			break;
+		default:
 			std::cout << "KEY IS NOT A COMMAND\n";
 			break;
 	}

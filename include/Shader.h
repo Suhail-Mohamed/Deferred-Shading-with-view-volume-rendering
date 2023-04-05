@@ -61,7 +61,7 @@ public:
 	int copyFloatVectorToShader(float *v, int vectorSize, int elementSize, const char* name);
 	int copyIntVectorToShader(int *v, int vectorSize, int elementSize, const char* name);
 	
-	void copy_integer_to_shader(const std::string& name, const int value) {
+	void copy_integer_to_shader(const std::string name, const int value) {
 		int location = glGetUniformLocation(shaderProgramid, name.c_str());
 		
 		if (location == -1) {

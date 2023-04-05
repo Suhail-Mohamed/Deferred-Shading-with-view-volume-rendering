@@ -42,6 +42,9 @@ uniform atten_t    g_atten;
 uniform int	g_view_ambient; 
 uniform int	g_view_diffuse; 
 uniform int	g_view_specular;
+
+uniform bool g_show_debug;
+uniform int  g_wind_size;
 	
 /*************************************************************************************/
 
@@ -102,8 +105,7 @@ vec3 calcPointLight(material m,  pointLight l, fragData frag)
 
 vec2 calc_tex_coord() 
 {
-	float wind_size = 1024.0f;
-	return gl_FragCoord.xy / vec2(wind_size, wind_size);
+	return gl_FragCoord.xy / g_wind_size;
 }
 
 /*************************************************************************************/
@@ -119,7 +121,11 @@ void main()
 	frag.colour   = texture(colour_tex, frag_tex_coord);
 
 	frag_colour = calcPointLight(gMaterial, gPointLight, frag);
-	out_colour  = vec4(frag_colour, 1.0f); 
+	
+	if (!g_show_debug)
+		out_colour = vec4(frag_colour, 1.0f); 
+	else
+		out_colour = frag.colour; 
 }
 
 

@@ -131,6 +131,7 @@ private:
 	int  factor;	
 	bool render_volumes    = false;
 	bool show_corners_only = false;
+	bool show_debug        = false;
 
 	static Solution *sol;
 	
