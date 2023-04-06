@@ -77,7 +77,6 @@ int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 
 	location = glGetAttribLocation(shader.getProgId(), "vtxPos");
 	if (location == -1) {
-		std::cout << "ERROR LOADING IN POSITION DATA\n";
 		return -1;
 	}
 
@@ -85,17 +84,13 @@ int GraphicsObject::createVAO(Shader shader, Vertices vtx, Indices ind)
 	glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
 
 	location = glGetAttribLocation(shader.getProgId(), "vtxCol");
-	if (location == -1) {
-		std::cout << "ERROR LOADING IN COLOUR DATA\n";
-	} else {
+	if (location != -1) {
 		glEnableVertexAttribArray(location);
 		glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, col));
 	}
 
 	location = glGetAttribLocation(shader.getProgId(), "vtxNormal");
-	if (location == -1) {
-		std::cout << "ERROR LOADING IN NORMAL DATA\n";
-	} else {
+	if (location != -1) {
 		glEnableVertexAttribArray(location);
 		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 	}

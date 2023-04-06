@@ -26,7 +26,7 @@
 #define NUM_SPHERES				 10
 #define WINDOW_SIZE				 1024
 #define MOVEMENT_SPEED			 3
-#define NUM_CORNERS              4
+#define NUM_CORNERS              5
 
 /************************************************************************************************/
 
@@ -144,7 +144,7 @@ private:
 
 	Light  light_list[NUM_LIGHTS];
 	Sphere view_light[NUM_LIGHTS];
-	int	   corners[NUM_CORNERS] = {0, 9, NUM_LIGHTS - 10, NUM_LIGHTS - 1};
+	int	   corners[NUM_CORNERS] = {0, 9, 35, NUM_LIGHTS - 10, NUM_LIGHTS - 1};
 	
 	framebuffer_t f_buffer;
 	char* fbuffer_vtx_shader  = const_cast<char*>("../shaders/frame_buffer.vert");
