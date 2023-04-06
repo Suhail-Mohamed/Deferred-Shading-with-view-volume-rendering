@@ -1,6 +1,7 @@
 #include "Solution.h"
 
 #include "../include/nuss_math.h"
+#include <GL/freeglut_std.h>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -22,24 +23,19 @@
 
 Solution *Solution::sol = NULL;
 
-Solution::Solution() : numFrames(0)
-{
-	srand48(time(nullptr));
-}
+Solution::Solution() : numFrames(0) { srand(time(nullptr)); }
  
 /*************************************************************************/
 
-Solution::~Solution()
-{
+Solution::~Solution() {
 	printf("\n exiting the progam gracefully\n");
 	f_buffer.delete_frame_buffer();
 }
 
 /******************************************************************************/
 
-int Solution::initOpenGL()
-{
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+int Solution::initOpenGL() {
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(WINDOW_SIZE, WINDOW_SIZE);
 	glutCreateWindow("Deffered Shading");
@@ -62,48 +58,30 @@ int Solution::initOpenGL()
 
 /******************************************************************************/
 
-void Solution::renderCB()
-{
-	sol->render();
-}
-
+void Solution::renderCB() { sol->render(); }
 
 /************************************************************/
 
-void Solution::keyboardCB(unsigned char key, int x, int y)
-{
-	sol->keyboard(key, x, y);
-}
-
+void Solution::keyboardCB(unsigned char key, int x, int y) { sol->keyboard(key, x, y); }
 
 /************************************************************/
 
-void Solution::specialKeyboardCB(int key, int x, int y)
-{
-	sol->specialKeyboard(key, x, y);
-}
-
+void Solution::specialKeyboardCB(int key, int x, int y) { sol->specialKeyboard(key, x, y); }
 
 /************************************************************/
 
-void Solution::winResizeCB(int width, int height)
-{
-	sol->winResize(width, height);
-}
+void Solution::winResizeCB(int width, int height) { sol->winResize(width, height); }
 
 /************************************************************/
 
-void Solution::timerCB(int operation)
-{
+void Solution::timerCB(int operation) {
 	glutTimerFunc(FRAME_TIME, Solution::timerCB, UPDATE_RENDERRED_OBJECTS);	
 	sol->timer(operation);
 }
 
-
 /************************************************************/
 
-int Solution::timer(int operation)
-{
+int Solution::timer(int operation) {
 	switch (operation) {
 		case UPDATE_RENDERRED_OBJECTS:
 			updateObjects(numFrames);
@@ -169,7 +147,6 @@ int Solution::initSolution()
 		light_list[i].light_view.createVAO(shader_null, vtx2, ind2);
 		light_list[i].light_view.setInitialPosition(light_list[i].pointLight.worldPos);
 		light_list[i].light_view.setScale(light_size, light_size, light_size);
-		light_list[i].loadPointLight(shader_phongtex);
 		
 		view_light[i].sphere_colour = light_list[i].light_colour();	
 		view_light[i].createSphere(20, 20, vtx2, ind2);
@@ -180,10 +157,10 @@ int Solution::initSolution()
 
 	Vector3f sphere_position = {140.0f, 90.0f, 150.0f};
 	for (size_t i = 0; i < NUM_SPHERES; ++i) {
-		bool row_mod = (i % 10 == 0);
+		bool row_mod = (i % 5 == 0);
 		if (row_mod) sphere_position.x = 140.0f;
 		sphere_position.x = sphere_position.x + 90.0f;
-		sphere_position.z = sphere_position.z - row_mod * 90.0f;
+		sphere_position.z = sphere_position.z - row_mod * 100.0f;
 	
 		sphere_list[i].materials.ambientMaterial  = random_vec(0.0f, 1.0f); 
 		sphere_list[i].materials.diffuseMaterial  = random_vec(0.0f, 1.0f);
@@ -214,7 +191,7 @@ void Solution::setSolution(Solution * _sol)
 void Solution::stencil_lighting_pass(size_t idx) {	
 	/* loading light view volume into stencil buffer,
 	   we only render the areas where our stencil isn't 
-	   0 */
+	   0 */	
 	shader_null.useProgram(true);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);	
@@ -223,7 +200,7 @@ void Solution::stencil_lighting_pass(size_t idx) {
 	glStencilOpSeparate(GL_BACK , GL_KEEP, GL_INCR_WRAP, GL_KEEP);
 	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 	light_list[idx].light_view.render(shader_null);
-
+    
 	/* lighting pass of deffered shading */
 	shader_phongtex.useProgram(true);
 	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
@@ -251,7 +228,7 @@ void Solution::render()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); /* clearing default frame buffer */
 	
-	/* geometry pass of deffered shading */
+	/******** Geometry pass of deffered shading ********/
 	glDepthMask(GL_TRUE);	
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, f_buffer.fbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -266,7 +243,7 @@ void Solution::render()
 	
 	glDepthMask(GL_FALSE);
     
-	/* stencil + lighting pass of view volume lighting */
+	/******** Stencil + lighting pass of view volume lighting ********/
 	glEnable(GL_STENCIL_TEST);
 
 	shader_null.useProgram(true);
@@ -288,8 +265,15 @@ void Solution::render()
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, f_buffer.colour_tex);
 	
+	/* transferring depth data to the main render buffer for use for the stencil test */
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, f_buffer.fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+	glBlitFramebuffer(0, 0, WINDOW_SIZE, WINDOW_SIZE, 
+				      0, 0, WINDOW_SIZE, WINDOW_SIZE, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	if (show_corners_only)
 		for (size_t i = 0; i < NUM_CORNERS; ++i)
 			stencil_lighting_pass(corners[i]);
@@ -298,16 +282,8 @@ void Solution::render()
 			stencil_lighting_pass(i);
 
 	glDisable(GL_STENCIL_TEST);
-
-	/* transferring depth data to the main render buffer */
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, f_buffer.fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-	glBlitFramebuffer(0, 0, WINDOW_SIZE, WINDOW_SIZE, 
-				      0, 0, WINDOW_SIZE, WINDOW_SIZE, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
-	/* rendering where the lights are located, using normal rendering techniques */
+	/******** Rendering where the lights are located, using normal rendering techniques ********/
 	glEnable(GL_DEPTH_TEST);	
 	if (render_volumes) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
@@ -328,8 +304,7 @@ void Solution::render()
 
 /************************************************************/
 
-void Solution::keyboard(unsigned char key, int x, int y)
-{
+void Solution::keyboard(unsigned char key, int x, int y) {
 	static int plotFill = 1;
 	switch (key) {
 		case 'q':
@@ -425,8 +400,7 @@ void Solution::keyboard(unsigned char key, int x, int y)
 
 /************************************************************/
 
-void Solution::specialKeyboard(int key, int x, int y)
-{
+void Solution::specialKeyboard(int key, int x, int y) {
 	switch (key) {
 		case GLUT_KEY_LEFT:
 			cam.yaw(1.0f * MOVEMENT_SPEED);
@@ -445,26 +419,22 @@ void Solution::specialKeyboard(int key, int x, int y)
 
 /************************************************************/
 
-void Solution::winResize(int width, int height)
-{
+void Solution::winResize(int width, int height) {
 	glViewport(0, 0, WINDOW_SIZE, WINDOW_SIZE);
 }
 
 /***********************************************************/
 
-int Solution::updateObjects(int numFrames)
-{
+int Solution::updateObjects(int numFrames) {
 	for (size_t i = 0; i < NUM_SPHERES; ++i)
 		sphere_list[i].incrementRotations(0, 0, 0.5);
-	
 	glutPostRedisplay();
 	return 0;
 }
 
 /*************************************************************************************************************/
 
-int Solution::printOpenGLError(int errorCode)
-{
+int Solution::printOpenGLError(int errorCode) {
 	switch (errorCode) {
 		case GL_INVALID_VALUE:
 			printf("GL_INVALID_VALUE is generated if program is not a value generated by OpenGL.\n");
