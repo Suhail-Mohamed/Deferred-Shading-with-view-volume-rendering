@@ -27,6 +27,8 @@
 #define WINDOW_SIZE				 1024
 #define MOVEMENT_SPEED			 3
 #define NUM_CORNERS              5
+#define NUM_SPHERES_PER_ROW      3
+#define NUM_LIGHTS_PER_ROW       10
 
 /************************************************************************************************/
 
@@ -144,7 +146,9 @@ private:
 
 	Light  light_list[NUM_LIGHTS];
 	Sphere view_light[NUM_LIGHTS];
-	int	   corners[NUM_CORNERS] = {0, 9, 35, NUM_LIGHTS - 10, NUM_LIGHTS - 1};
+	int	   corners[NUM_CORNERS] = {0, NUM_LIGHTS_PER_ROW - 1, 35, 
+								   NUM_LIGHTS - NUM_LIGHTS_PER_ROW, 
+								   NUM_LIGHTS - 1};
 	
 	framebuffer_t f_buffer;
 	char* fbuffer_vtx_shader  = const_cast<char*>("../shaders/frame_buffer.vert");
@@ -154,7 +158,7 @@ private:
 	char* basic_vtx_shader    = const_cast<char*>("../shaders/basic_shader.vert");
 	char* basic_frg_shader    = const_cast<char*>("../shaders/basic_shader.frag");
 	char* null_vtx_shader     = const_cast<char*>("../shaders/null_shader.vert");
-	char* null_frg_shader       = const_cast<char*>("../shaders/null_shader.frag");
+	char* null_frg_shader     = const_cast<char*>("../shaders/null_shader.frag");
 };
 
 #endif

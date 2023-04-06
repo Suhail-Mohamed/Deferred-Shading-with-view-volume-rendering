@@ -131,7 +131,7 @@ int Solution::initSolution()
 	f_buffer.init_frame_buffer();
 	Vector3f light_position = {140.0f, 40.0f, 150.0f};
 	for (size_t i = 0; i < NUM_LIGHTS; ++i) {
-		bool row_mod = (i % 10 == 0);
+		bool row_mod = (i % NUM_LIGHTS_PER_ROW == 0);
 		if (row_mod) light_position.x = 140.0f;
 		light_position.x = light_position.x + 40.0f;
 		light_position.z = light_position.z - row_mod * 40.0f;
@@ -157,7 +157,7 @@ int Solution::initSolution()
 
 	Vector3f sphere_position = {140.0f, 90.0f, 150.0f};
 	for (size_t i = 0; i < NUM_SPHERES; ++i) {
-		bool row_mod = (i % 5 == 0);
+		bool row_mod = (i % NUM_SPHERES_PER_ROW == 0);
 		if (row_mod) sphere_position.x = 140.0f;
 		sphere_position.x = sphere_position.x + 90.0f;
 		sphere_position.z = sphere_position.z - row_mod * 100.0f;
@@ -181,8 +181,7 @@ int Solution::initSolution()
 
 /**********************************************************************/
 
-void Solution::setSolution(Solution * _sol)
-{
+void Solution::setSolution(Solution * _sol) {
 	Solution::sol = _sol;
 }
 
