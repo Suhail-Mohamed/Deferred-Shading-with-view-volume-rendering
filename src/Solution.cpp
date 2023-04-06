@@ -233,7 +233,9 @@ void Solution::render()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, f_buffer.fbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glEnable(GL_DEPTH_TEST); 
+	glEnable(GL_DEPTH_TEST);
+	glDrawBuffers(3, f_buffer.attachments);
+	
 	shader_fbuffer.useProgram(true);
 	shader_fbuffer.copyMatrixToShader(viewMat, "view");
 	shader_fbuffer.copyMatrixToShader(projMat, "projection");
