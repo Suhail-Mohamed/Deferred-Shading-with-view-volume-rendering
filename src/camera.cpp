@@ -54,7 +54,7 @@ Return:
 */
 
 Camera::Camera(void): position(0.0,0.0,0.0), lookAtVector(0.0,0.0,100.0), upVector(0.0,1.0,0.0)
-, speed(0), nearPlane(1.0), farPlane(2000), fieldOfView(70), aspectRatio(1.0)
+, speed(0), nearPlane(1.0), farPlane(5000), fieldOfView(70), aspectRatio(1.0)
 {
 	viewMat = Matrix4f::cameraMatrix(position, lookAtVector, upVector);
 	projMat = Matrix4f::symmetricPerspectiveProjectionMatrix(fieldOfView, aspectRatio, nearPlane, farPlane);

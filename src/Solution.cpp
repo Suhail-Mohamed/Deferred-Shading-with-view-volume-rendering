@@ -2,6 +2,7 @@
 
 #include "../include/nuss_math.h"
 #include <GL/freeglut_std.h>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -82,6 +83,9 @@ void Solution::timerCB(int operation) {
 /************************************************************/
 
 int Solution::timer(int operation) {
+	++numFrames;
+	if (numFrames == INT32_MAX) numFrames = 0;
+
 	switch (operation) {
 		case UPDATE_RENDERRED_OBJECTS:
 			updateObjects(numFrames);

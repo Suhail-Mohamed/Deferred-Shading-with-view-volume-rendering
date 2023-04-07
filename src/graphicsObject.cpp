@@ -171,7 +171,6 @@ void GraphicsObject::setInitialRotations(float rollAngle, float pitchAngle, floa
 	this->rollAngle = rollAngle;
 	this->pitchAngle = pitchAngle;
 	this->yawAngle = yawAngle;
-
 }
 
 /*************************************************************************/

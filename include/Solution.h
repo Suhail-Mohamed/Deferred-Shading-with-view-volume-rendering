@@ -22,13 +22,13 @@
 
 #define UPDATE_RENDERRED_OBJECTS 1000
 #define FRAME_TIME				 30
-#define NUM_LIGHTS				 150
-#define NUM_SPHERES				 10
+#define NUM_LIGHTS				 800
+#define NUM_SPHERES				 100
 #define WINDOW_SIZE				 1024
 #define MOVEMENT_SPEED			 3
 #define NUM_CORNERS              5
-#define NUM_SPHERES_PER_ROW      3
-#define NUM_LIGHTS_PER_ROW       10
+#define NUM_SPHERES_PER_ROW      5
+#define NUM_LIGHTS_PER_ROW       15
 
 /************************************************************************************************/
 
@@ -149,7 +149,7 @@ private:
 	int	   corners[NUM_CORNERS] = {0, NUM_LIGHTS_PER_ROW - 1, 35, 
 								   NUM_LIGHTS - NUM_LIGHTS_PER_ROW, 
 								   NUM_LIGHTS - 1};
-	
+
 	framebuffer_t f_buffer;
 	char* fbuffer_vtx_shader  = const_cast<char*>("../shaders/frame_buffer.vert");
 	char* fbuffer_frg_shader  = const_cast<char*>("../shaders/frame_buffer.frag");

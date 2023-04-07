@@ -30,8 +30,8 @@ typedef struct attenuation {
 
 struct Light {
 	Light() {
-		atten.a = 0.03f;
-		atten.b = 0.0f;
+		atten.a = 0.04f;
+		atten.b = 0.01f;
 		atten.c = 0.01f;
 	}
 
