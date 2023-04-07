@@ -48,7 +48,7 @@ struct framebuffer_t {
 		glDeleteTextures(1, &colour_tex);
 		glDeleteRenderbuffers(1, &rbo);
 
-		pos_tex = normal_tex = colour_tex = rbo = 0;
+		fbo = pos_tex = normal_tex = colour_tex = rbo = 0;
 	}
 
 	void init_frame_buffer() {
@@ -123,7 +123,6 @@ private:
 		   shader_phongtex,
 		   shader_basic,
 		   shader_null;
-	Sphere sphere;
 	Sphere sphere_list[NUM_SPHERES];
 	Camera cam;
 	
