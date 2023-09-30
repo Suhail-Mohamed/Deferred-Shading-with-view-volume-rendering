@@ -30,3 +30,4 @@ the fragment shader is called once for each pixel within the shape's area.
 
 Consider a point light in our non-lit scene. Calculating the effect of this light on all pixels in our scene might seem redundant, especially given the limited radius of influence of such lights.
 View volume rendering capitalizes on this by only calculating lighting for objects within a certain radius from the point light, thus minimizing calls to the fragment shader.
+![View volume](project_images/more_images_optimized.png)
