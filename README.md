@@ -24,10 +24,12 @@ Many objects might have their lighting calculated, only to end up being partiall
 Deferred shading, on the other hand, 'defers' the lighting calculation. Instead of calculating the lighting for all objects that reach the vertex shader, it only calculates lighting for objects in the final scene.
 This is achieved through off-screen rendering, which provides the data needed to light our final scene. Consequently, lighting is only calculated for objects viewable from the camera.
 
+![Example of Deferred shading rendering to a quad](project_images/framebuffer_rendering.png)
+
 ## View Volume rendering
 To further enhance efficiency, we introduce view volume rendering. When rendering graphics, the fragment shader is invoked multiple times. For instance, when drawing a shape, 
 the fragment shader is called once for each pixel within the shape's area.
 
 Consider a point light in our non-lit scene. Calculating the effect of this light on all pixels in our scene might seem redundant, especially given the limited radius of influence of such lights.
 View volume rendering capitalizes on this by only calculating lighting for objects within a certain radius from the point light, thus minimizing calls to the fragment shader.
-![View volume](project_images/more_images_optimized.png)
+![View volumes](project_images/more_images_optimized.png)
