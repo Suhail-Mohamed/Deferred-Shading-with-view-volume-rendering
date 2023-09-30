@@ -22,7 +22,6 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/camera.cpp
     ${PROJECT_SOURCE_DIR}/src/cylinder.cpp
     ${PROJECT_SOURCE_DIR}/src/graphicsObject.cpp
-    ${PROJECT_SOURCE_DIR}/src/Light.cpp
     ${PROJECT_SOURCE_DIR}/src/Shader.cpp
     ${PROJECT_SOURCE_DIR}/src/Solution.cpp
     ${PROJECT_SOURCE_DIR}/src/sphere.cpp
