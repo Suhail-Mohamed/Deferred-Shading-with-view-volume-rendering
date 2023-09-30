@@ -3,6 +3,7 @@
 This project is an implementation of Deferred shading + view volume rendering in OpenGL & C++
 ![Final Render](project_images/final_render_potentially.png)
 
+|---------|---------|
 |w, s | Move forward/backward |
 |a, d | Move up/down |
 | Arrow keys | Change what the camera is looking at |
