@@ -3,16 +3,18 @@
 This project is an implementation of Deferred shading + view volume rendering in OpenGL & C++
 ![Final Render](project_images/final_render_potentially.png)
 
-|------------|---------------------------------------------|
-| w, s       | Move forward/backward                       |
-| a, d       | Move up/down                                |
-| Arrow keys | Change what the camera is looking at        |
-| r          | Rotate camera                               |
-| v          | See view volumes                            |
-| c          | Light corners only                          |
-| u          | See sphere colours, no lighting (debug view)|
-| p,o, i     | In order: toggle ambient, diffuse & specular light |
-| q          | Quit                                        |
+
+| Command      | Action                                        |
+| ------------ | --------------------------------------------- |
+| `w, s`       | Move forward/backward                       |
+| `a, d`       | Move up/down                                |
+| `Arrow keys` | Change what the camera is looking at        |
+| `r`          | Rotate camera                               |
+| `v`          | See view volumes                            |
+| `c`          | Light corners only                          |
+| `u`          | See sphere colours, no lighting (debug view)|
+| `p,o, i`     | In order: toggle ambient, diffuse & specular light |
+| `q`          | Quit                                        |
 
 ## Introduction
 
