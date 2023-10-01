@@ -1,6 +1,7 @@
 # Deferred Shading + View volume rendering in OpenGL
 
-This project is an implementation of Deferred shading + view volume rendering in OpenGL & C++
+This project is an implementation of Deferred shading + view volume rendering in OpenGL & C++ (Note: this code was done for a class so it wasn't written with good software engineering
+principles in mind)
 ![Final Render](project_images/final_render_potentially.png)
 
 
